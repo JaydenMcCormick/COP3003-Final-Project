@@ -52,7 +52,6 @@ const int PEACHRINGS_USD = 1616;
 const int SWEDISHFISH_USD = 577;
 const int STARBURSTS_USD = 798;
 // USD (cents) for when buying candy
-
 const int SELLPRICE = 450; // each bag is sold for 450 cents
 
 //---------------------------------------------------------
@@ -67,5 +66,4 @@ void soldCandy(std::string); // question, what was sold
 void dispSpiceUsed(int); // amount of bags made
 
 //---------------------------------------------------------
-
 #endif //FINAL_FINALHEADER_H
