@@ -24,6 +24,7 @@ const int CAYENNE_USD = 728;
 const int CHAMOY_USD = 1193;
 const int PSUGAR_USD = 584;
 // USD (in cents) for when buying spices
+
 //---------------------------------------------------------
 const float CANDY_USED = 3.5; // oz of candy used per bag
 const float GUMMYBEARS_OZ = 72.0;
