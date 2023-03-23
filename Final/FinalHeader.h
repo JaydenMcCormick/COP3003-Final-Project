@@ -76,13 +76,13 @@ void welcomeMenu(){
 
 /**
  * Initial prompt for if the user bought or used products, or if they sold candy
- * @return
+ * @return initialChoice - returns what they did, buy/use/sell supplies/candy
  */
 int generalPrompt(){
     int initialChoice;
     //std::cout << "Did you (1) buy or (2) use products or (3) sell candy? \n";
     std::cout << "Enter one of the following, did you: \n"
-                 "[1] - Buy Candy\n"
+                 "[1] - Buy Supplies\n"
                  "[2] - Make Candy\n"
                  "[3] - Sell Candy\n";
     std::cin >> initialChoice;
@@ -137,7 +137,6 @@ int whatHappened(int whatOccurred){
             exit(-1);
         }
     }
-
 } //End whatHappened
 
 /**
@@ -157,6 +156,11 @@ bool askBoolean(std::string question, std::string continueOption){
     return false;
 } // End askBoolean
 
+/**
+ * Takes a question, determines if the user bought candy or spice,
+ * @param question
+ * @return totalPrice, the amount spent on this shopping trip
+ */
 long addProduct(std::string question){
     std::cin.ignore(1,'\n');
     std::string answerQuestion;
@@ -300,6 +304,11 @@ long addProduct(std::string question){
     return totalPrice;
 } // End addProduct
 
+/**
+ * Takes a question, asks how much product was made and what candy was made.
+ * Calculates spices, and candy amounts used
+ * @param question
+ */
 void useProduct(std::string question){
     std::cin.ignore(1,'\n');
     std::string candyAnswer;
@@ -371,6 +380,10 @@ void useProduct(std::string question){
         }
 } // End useProduct
 
+/**
+ * Takes a question, asks what candy was sold, how much and calculates the money earned
+ * @param question
+ */
 void soldCandy(std::string question){
     std::cin.ignore(1,'\n');
     std::string candyAnswer;
@@ -433,6 +446,10 @@ void soldCandy(std::string question){
     }
 } // End candySold
 
+/**
+ * Takes amount of bags of candy made and calculates and displays how much spice was used
+ * @param amount
+ */
 void dispSpiceUsed(int amount) {
     double sazonAmt, tajinAmt, lpolvoAmt, miguelitoAmt, cayenneAmt, chamoyAmt, psugarAmt;
     sazonAmt = SAZON_OZ*amount;
@@ -441,11 +458,11 @@ void dispSpiceUsed(int amount) {
     lpolvoAmt = LPOLVO_OZ*amount;
     cayenneAmt = CAYENNE_OZ*amount;
     chamoyAmt = CHAMOY_OZ*amount;
+    psugarAmt = PSUGAR_OZ*amount;
     std::cout << "In ounces, you used the following amounts of each spice: \n"
                  "Sazon: " << sazonAmt << ", Tajin: " << tajinAmt << ", Miguelito: " << miguelitoAmt << ", Lucas Polvo: " << lpolvoAmt<< ",\n"
-                 "Cayenne Pepper: " << cayenneAmt << ", and Chamoy: " << chamoyAmt << ".\n";
+                 "Cayenne Pepper: " << cayenneAmt << "Powdered Sugar: " << psugarAmt << ", and Chamoy: " << chamoyAmt << ".\n";
 }
-
 
 //---------------------------------------------------------
 #endif //FINAL_FINALHEADER_H
