@@ -1,0 +1,30 @@
+250
+250
+250
+250
+250
+250
+250
+250
+250
+250
+250
+250
+250
+250
+
+0 - Sazon
+1 - Tajin
+2 - Miguelito
+3 - Lucas Polvo
+4 - Cayenne
+5 - Chamoy
+6 - Powdered Sugar
+7 - Gummy Bears
+8 - Skittles
+9 - Starbursts
+10 - Gushers
+11 - Jolly Ranchers
+12 - Nerd Clusters
+13 - Peach Rings
+14 - Swedish Fish
