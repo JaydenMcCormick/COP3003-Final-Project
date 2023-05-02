@@ -1,14 +1,16 @@
 //---------------------------------------------------------
-// File : FinalHeader.h
+// File : FinalHeader.cpp
 // Class: COP 3003, Spring 2023
 // Devel: Jayden McCormick
 // Desc : Contains function definitions for the
 //        management system.
 //---------------------------------------------------------
 #include "FinalHeader.h"
-
 //---------------------------------------------------------
 // Function Definitions
+/**
+ *  Used just to display a welcome in ASCII art
+ */
 void welcomeMenu(){
     std::cout << "   ___  ___  __  __ ____   _  _    __ __  __ __ __  ____ __  __ ______   ___   ____  _  _\n"
                  "  //   // \\\\ ||\\ || || \\\\  \\\\//    || ||\\ || || || ||    ||\\ || | || |  // \\\\  || \\\\ \\\\//\n"
@@ -20,7 +22,7 @@ void welcomeMenu(){
                  " \\\\ /\\ // ||==  ||    ((    ((   )) || \\/ || ||==                                        \n"
                  "  \\V/\\V/  ||___ ||__|  \\\\__  \\\\_//  ||    || ||___                                       \n"
                  "                                                                                         \n";
-} // End welcomeMenu, used just to display a welcome in ASCII art
+} // End welcomeMenu
 
 /**
  * Initial prompt for if the user bought or used products, or if they sold candy
@@ -28,39 +30,40 @@ void welcomeMenu(){
  */
 int generalPrompt(){
     int initialChoice;
-    //std::cout << "Did you (1) buy or (2) use products or (3) sell candy? \n";
     std::cout << "Enter one of the following, did you: \n"
                  "[1] - Buy Supplies\n"
-                 "[2] - Make Candy\n"
-                 "[3] - Sell Candy\n";
+                 "[2] - Sell Candy\n"
+                 "[3] - Make Candy\n";
     std::cin >> initialChoice;
-    std::cout << "=======================================================================================\n";
+    std::cout << "=========================================="
+                 "=============================================\n";
     return initialChoice;
 } // End generalPrompt
 
 /**
+ * Used to get input if user bought, sold, or made candy and redirects to the correct area from there.
  * Gets what the user enters, buy/use/sell, does what's needed and loops until asked to break.
+ * Returns
  * @param whatOccurred
- * @return
  */
-int whatHappened(int whatOccurred){
+void whatHappened(int whatOccurred){
+    //directed from generalPrompt(), the if statements respond to it
     if (whatOccurred == 1){
         addProduct("Did you buy candy or spice?\n");
-
     }
-    else if(whatOccurred == 2){
+    else if(whatOccurred == 3){
         useProduct("What kind of candy did you make?\n");
-
     }
-    else if (whatOccurred == 3){
+    else if (whatOccurred == 2){
         soldCandy("What kind of candy did you sell?\n");
-
     }
     else{
         std::cout << "You entered an invalid response, please retry.";
         exit(-1);
     }
-    while (askBoolean("Do you need to enter more options? (Y/N)","Y")) {
+    //After first entry, loop asking if they need to enter more options.
+    while (askBoolean("\nDo you need to enter more options?"
+                      " (Y/N)","Y")) {
         std::cout << "Enter one of the following, did you: \n"
                      "[1] - Buy Candy\n"
                      "[2] - Make Candy\n"
@@ -68,17 +71,16 @@ int whatHappened(int whatOccurred){
         std::cin >> whatOccurred;
         if (whatOccurred == 1){
             addProduct("Did you buy candy or spice?\n");
-
         }
         else if(whatOccurred == 2){
-            useProduct("What kind of candy did you make?\n"
-                       "(Refer to multi-worded candies as the first word. Ex: For 'Gummy Bears' type 'Gummy' or 'Nerd Clusters' as 'Nerd'.\n");
-
+            useProduct("What kind of candy did you make?\n "
+                       "(Refer to multi-worded candies as the first word."
+                       " Ex: For 'Gummy Bears' type 'Gummy' or 'Nerd Clusters' as 'Nerd'.\n");
         }
         else if (whatOccurred == 3){
             soldCandy("What kind of candy did you sell?\n"
-                      "(Refer to multi-worded candies as the first word. Ex: For 'Gummy Bears' type 'Gummy' or 'Nerd Clusters' as 'Nerd'.\n");
-
+                      "(Refer to multi-worded candies as the first word."
+                      " Ex: For 'Gummy Bears' type 'Gummy' or 'Nerd Clusters' as 'Nerd'.\n");
         }
         else{
             std::cout << "You entered an invalid response, please retry.";
@@ -88,16 +90,21 @@ int whatHappened(int whatOccurred){
 } //End whatHappened
 
 /**
- * Takes a question, and the option to continue and proposes the question
+ * Takes a question, and the option wanted
+ * to continue and proposes the question
  * looking for the given continueOption
+ * Returns true/false, if they want to continue or not
  * @param question
  * @param continueOption
  * @return
  */
 bool askBoolean(std::string question, std::string continueOption){
+    //Will be (Y/N) so only need the first letter
+    std::cin.clear();
     std::string choice;
     std::cout << question;
     std::cin >> choice;
+    //forces uppercase first letter, so doesn't matter if user does either
     if(std::toupper(choice[0]) == continueOption[0]){
         return true;
     }
@@ -105,71 +112,103 @@ bool askBoolean(std::string question, std::string continueOption){
 } // End askBoolean
 
 /**
+ * Used to change inventory values when the user went out and bought supplies.
  * Takes a question, determines if the user bought candy or spice,
  * @param question
- * @return totalPrice, the amount spent on this shopping trip
  */
-long addProduct(std::string question){
+void addProduct(std::string question){
+    //clears any cin that may mess with things
     std::cin.ignore(1,'\n');
     std::string answerQuestion, candyAnswer, spiceAnswer;
     int amount;
-    long totalPrice;
+    long totalPrice, convUSD;
+    Inventory currentInv;
 
     std::cout << question;
     std::getline(std::cin, answerQuestion);
 
-    if(answerQuestion.find("candy") == 0 || answerQuestion.find("Candy") == 0 || answerQuestion.find("CANDY") == 0){
-        std::cout << "What kind of candy did you buy?\n"
-                     "(Refer to multi-worded candies as the first word. Ex: For 'Gummy Bears' type 'Gummy' or 'Nerd Clusters' as 'Nerd'.\n";
+    // Convert the answer to lowercase to simplify the comparison logic
+    std::transform(answerQuestion.begin(), answerQuestion.end(),
+                   answerQuestion.begin(), ::tolower);
 
+    if (answerQuestion.find("candy") == 0) {
+        std::cout << "What kind of candy did you buy?\n"
+                  << "(Refer to multi-worded candies as the first word. Ex: For 'Gummy Bears' type 'Gummy' or"
+                     " 'Nerd Clusters' as 'Nerd'.\n";
         std::getline(std::cin, candyAnswer);
-        if(candyAnswer.find("gummy") == 0 || candyAnswer.find("Gummy") == 0 || candyAnswer.find("GUMMY") == 0){
+
+        std::transform(candyAnswer.begin(), candyAnswer.end(), candyAnswer.begin(), ::tolower);
+        if (candyAnswer == "gummy") {
             std::cout << "How many containers did you buy?\n";
             std::cin >> amount;
             totalPrice = amount * GUMMYBEARS_USD;
+            convUSD = totalPrice/100;
             std::cout << "You've spent: $" << totalPrice/100;
+            currentInv.updateInventoryBought("inventory.txt", 7, amount);
+            currentInv.appendMoneySpent("moneyspent.txt", convUSD);
         }
-        else if(candyAnswer.find("skittles") == 0 || candyAnswer.find("Skittles") == 0 || candyAnswer.find("SKITTLES") == 0){
+        else if (candyAnswer == "skittles") {
             std::cout << "How many containers did you buy?\n";
             std::cin >> amount;
             totalPrice = amount * SKITTLES_USD;
-            std::cout << "You've spent: $" << totalPrice/100;
+            convUSD = totalPrice/100;
+            std::cout << "You've spent: $" << convUSD;
+            currentInv.updateInventoryBought("inventory.txt", 8, amount);
+            currentInv.appendMoneySpent("moneyspent.txt", convUSD);
         }
-        else if(candyAnswer.find("gushers") == 0 || candyAnswer.find("Gushers") == 0 || candyAnswer.find("GUSHERS") == 0){
+        else if (candyAnswer == "gushers") {
             std::cout << "How many containers did you buy?\n";
             std::cin >> amount;
             totalPrice = amount * GUSHERS_USD;
-            std::cout << "You've spent: $" << totalPrice/100;
+            convUSD = totalPrice/100;
+            std::cout << "You've spent: $" << convUSD;
+            currentInv.updateInventoryBought("inventory.txt", 10, amount);
+            currentInv.appendMoneySpent("moneyspent.txt", convUSD);
         }
-        else if(candyAnswer.find("jolly") == 0 || candyAnswer.find("Jolly") == 0 || candyAnswer.find("JOLLY") == 0){
+        else if (candyAnswer == "jolly") {
             std::cout << "How many containers did you buy?\n";
             std::cin >> amount;
             totalPrice = amount * JRANCHERS_USD;
-            std::cout << "You've spent: $" << totalPrice/100;
+            convUSD = totalPrice/100;
+            std::cout << "You've spent: $" << convUSD;
+            currentInv.updateInventoryBought("inventory.txt", 11, amount);
+            currentInv.appendMoneySpent("moneyspent.txt", convUSD);
         }
-        else if(candyAnswer.find("nerd") == 0 || candyAnswer.find("Nerd") == 0 || candyAnswer.find("NERD") == 0){
+        else if (candyAnswer == "nerd") {
             std::cout << "How many containers did you buy?\n";
             std::cin >> amount;
             totalPrice = amount * NERDCLUSTERS_USD;
-            std::cout << "You've spent: $" << totalPrice/100;
+            convUSD = totalPrice/100;
+            std::cout << "You've spent: $" << convUSD;
+            currentInv.updateInventoryBought("inventory.txt", 12, amount);
+            currentInv.appendMoneySpent("moneyspent.txt", convUSD);
         }
-        else if(candyAnswer.find("Peach") == 0 || candyAnswer.find("peach") == 0 || candyAnswer.find("PEACH") == 0){
+        else if(candyAnswer == "peach"){
             std::cout << "How many containers did you buy?\n";
             std::cin >> amount;
             totalPrice = amount * PEACHRINGS_USD;
-            std::cout << "You've spent: $" << totalPrice/100;
+            convUSD = totalPrice/100;
+            std::cout << "You've spent: $" << convUSD;
+            currentInv.updateInventoryBought("inventory.txt", 13, amount);
+            currentInv.appendMoneySpent("moneyspent.txt", convUSD);
         }
-        else if(candyAnswer.find("swedish") == 0 || candyAnswer.find("Swedish") == 0 || candyAnswer.find("SWEDISH") == 0){
+        else if(candyAnswer == "swedish"){
             std::cout << "How many containers did you buy?\n";
             std::cin >> amount;
             totalPrice = amount * SWEDISHFISH_USD;
-            std::cout << "You've spent: $" << totalPrice/100;
+            convUSD = totalPrice/100;
+            std::cout << "You've spent: $" << convUSD;
+            currentInv.updateInventoryBought("inventory.txt", 14, amount);
+            currentInv.appendMoneySpent("moneyspent.txt", convUSD);
         }
-        else if(candyAnswer.find("starbursts") == 0 || candyAnswer.find("Starbursts") == 0 || candyAnswer.find("STARBURSTS") == 0){
+        else if(candyAnswer == "starbursts"){
             std::cout << "How many containers did you buy?\n";
             std::cin >> amount;
             totalPrice = amount * STARBURSTS_USD;
-            std::cout << "You've spent: $" << totalPrice/100;
+            convUSD = totalPrice/100;
+            std::cout << "You've spent: $" << convUSD;
+            currentInv.updateInventoryBought("inventory.txt", 9, amount);
+            currentInv.appendMoneySpent("moneyspent.txt", convUSD);
         }
         else{
             std::cout << "You entered an invalid response, please retry.\n";
@@ -177,134 +216,173 @@ long addProduct(std::string question){
         }
     }
 
-    else if(answerQuestion.find("spice") == 0 || answerQuestion.find("Spice") == 0 || answerQuestion.find("SPICE") == 0){
+    else if(answerQuestion == "spice"){
         std::cout << "What kind of spice did you buy?\n"
-                     "(Refer to multi-worded spices as the first word. Ex: For 'Lucas Polvo' type 'Lucas' or 'Powdered Sugar' as 'Powdered'\n";
+                     "(Refer to multi-worded spices as the first word. Ex: For 'Lucas Polvo' type 'Lucas'"
+                     " or 'Powdered Sugar' as 'Powdered'\n";
         std::getline(std::cin, spiceAnswer);
-        if(spiceAnswer.find("sazon") == 0 || spiceAnswer.find("Sazon") == 0 || spiceAnswer.find("SAZON") == 0){
+
+        // Convert the answer to lowercase to simplify the comparison logic
+        std::transform(spiceAnswer.begin(), spiceAnswer.end(), spiceAnswer.begin(), ::tolower);
+
+        if(spiceAnswer == "sazon"){
             std::cout << "How many containers did you buy?\n";
             std::cin >> amount;
             totalPrice = amount * SAZON_USD;
-            std::cout << "You've spent: $" << totalPrice/100;
+            convUSD = totalPrice/100;
+            std::cout << "You've spent: $" << convUSD;
+            currentInv.updateInventoryBought("inventory.txt", 0, amount);
+            currentInv.appendMoneySpent("moneyspent.txt", convUSD);
         }
-        else if(spiceAnswer.find("tajin") == 0 || spiceAnswer.find("Tajin") == 0 || spiceAnswer.find("TAJIN") == 0){
+        else if(spiceAnswer == "tajin"){
             std::cout << "How many containers did you buy?\n";
             std::cin >> amount;
             totalPrice = amount * TAJIN_USD;
-            std::cout << "You've spent: $" << totalPrice/100;
+            convUSD = totalPrice/100;
+            std::cout << "You've spent: $" << convUSD;
+            currentInv.updateInventoryBought("inventory.txt", 1, amount);
+            currentInv.appendMoneySpent("moneyspent.txt", convUSD);
         }
-        else if(spiceAnswer.find("miguelito") == 0 || spiceAnswer.find("Miguelito") == 0 || spiceAnswer.find("MIGUELITO") == 0){
+        else if(spiceAnswer == "miguelito"){
             std::cout << "How many containers did you buy?\n";
             std::cin >> amount;
             totalPrice = amount * MIGUELITO_USD;
-            std::cout << "You've spent: $" << totalPrice/100;
+            convUSD = totalPrice/100;
+            std::cout << "You've spent: $" << convUSD;
+            currentInv.updateInventoryBought("inventory.txt", 2, amount);
+            currentInv.appendMoneySpent("moneyspent.txt", convUSD);
         }
-        else if(spiceAnswer.find("lucas") == 0 || spiceAnswer.find("Lucas") == 0 || spiceAnswer.find("LUCAS") == 0){
+        else if(spiceAnswer == "lucas"){
             std::cout << "How many containers did you buy?\n";
             std::cin >> amount;
             totalPrice = amount * LPOLVO_USD;
-            std::cout << "You've spent: $" << totalPrice/100;
+            convUSD = totalPrice/100;
+            std::cout << "You've spent: $" << convUSD;
+            currentInv.updateInventoryBought("inventory.txt", 3, amount);
+            currentInv.appendMoneySpent("moneyspent.txt", convUSD);
         }
-        else if(spiceAnswer.find("cayenne") == 0 || spiceAnswer.find("Cayenne") == 0 || spiceAnswer.find("CAYENNE") == 0){
+        else if(spiceAnswer == "cayenne"){
             std::cout << "How many containers did you buy?\n";
             std::cin >> amount;
             totalPrice = amount * CAYENNE_USD;
-            std::cout << "You've spent: $" << totalPrice/100;
+            convUSD = totalPrice/100;
+            std::cout << "You've spent: $" << convUSD;
+            currentInv.updateInventoryBought("inventory.txt", 4, amount);
+            currentInv.appendMoneySpent("moneyspent.txt", convUSD);
         }
-        else if(spiceAnswer.find("chamoy") == 0 || spiceAnswer.find("Chamoy") == 0 || spiceAnswer.find("CHAMOY") == 0){
+        else if(spiceAnswer == "chamoy"){
             std::cout << "How many containers did you buy?\n";
             std::cin >> amount;
             totalPrice = amount * CHAMOY_USD;
-            std::cout << "You've spent: $" << totalPrice/100;
+            convUSD = totalPrice/100;
+            std::cout << "You've spent: $" << convUSD;
+            currentInv.updateInventoryBought("inventory.txt", 5, amount);
+            currentInv.appendMoneySpent("moneyspent.txt", convUSD);
         }
-        else if(spiceAnswer.find("powdered") == 0 || spiceAnswer.find("Powdered") == 0 || spiceAnswer.find("POWDERED") == 0){
+        else if(spiceAnswer == "powdered"){
             std::cout << "How many containers did you buy?\n";
             std::cin >> amount;
             totalPrice = amount * PSUGAR_USD;
-            std::cout << "You've spent: $" << totalPrice/100;
+            convUSD = totalPrice/100;
+            std::cout << "You've spent: $" << convUSD;
+            currentInv.updateInventoryBought("inventory.txt", 6, amount);
+            currentInv.appendMoneySpent("moneyspent.txt", convUSD);
         }
         else{
             std::cout << "You entered an invalid response, please retry.\n";
             exit(-1);
         }
     }
-
     else{
         std::cout << "You entered an invalid response, please retry.\n";
         exit(-1);
     }
-
-    return totalPrice;
 } // End addProduct
 
 /**
+ * Used to change inventory values when making candy.
  * Takes a question, asks how much product was made and what candy was made.
  * Calculates spices, and candy amounts used
  * @param question
  */
 void useProduct(std::string question){
+    // clears cin of anything that may be left over to mess with things
     std::cin.ignore(1,'\n');
     std::string candyAnswer;
     int amount;
     long candyUsed;
+    Inventory currentInv;
 
-    std::cout << question;
+    std::cout << question << "Remember to refer"
+    " to multi-worded candies as the first word. "
+    "Ex: For 'Gummy Bears' type 'Gummy' or 'Nerd Clusters' as 'Nerd'.\n";
     std::getline(std::cin, candyAnswer);
-    if(candyAnswer.find("gummy") == 0 || candyAnswer.find("Gummy") == 0 || candyAnswer.find("GUMMY") == 0){
-        std::cout << "How many bags of candy did you make?\n";
-        std::cin >> amount;
-        candyUsed = amount * CANDY_USED;
-        dispSpiceUsed(amount);
-        std::cout << "You also used " << candyUsed << " ounces of Gummy Bears.\n";
 
-    }
-    else if(candyAnswer.find("skittles") == 0 || candyAnswer.find("Skittles") == 0 || candyAnswer.find("SKITTLES") == 0){
+    // Convert the candy answer to lowercase to simplify the comparison logic
+    std::transform(candyAnswer.begin(), candyAnswer.end(), candyAnswer.begin(), ::tolower);
+
+    if(candyAnswer == "gummy") {
         std::cout << "How many bags of candy did you make?\n";
         std::cin >> amount;
         candyUsed = amount * CANDY_USED;
         dispSpiceUsed(amount);
+        currentInv.updateInventoryUsed("inventory.txt", 7, amount);
+        std::cout << "You also used " << candyUsed << " ounces of Gummy Bears.\n";
+    }
+    else if(candyAnswer == "skittles") {
+        std::cout << "How many bags of candy did you make?\n";
+        std::cin >> amount;
+        candyUsed = amount * CANDY_USED;
+        dispSpiceUsed(amount);
+        currentInv.updateInventoryUsed("inventory.txt",8, amount);
         std::cout << "You also used " << candyUsed << " ounces of Skittles.\n";
     }
-    else if(candyAnswer.find("gushers") == 0 || candyAnswer.find("Gushers") == 0 || candyAnswer.find("GUSHERS") == 0){
+    else if(candyAnswer == "gushers") {
         std::cout << "How many bags of candy did you make?\n";
         std::cin >> amount;
         candyUsed = amount * CANDY_USED;
         dispSpiceUsed(amount);
+        currentInv.updateInventoryUsed("inventory.txt",10, amount);
         std::cout << "You also used " << candyUsed << " ounces of Gushers.\n";
     }
-    else if(candyAnswer.find("jolly") == 0 || candyAnswer.find("Jolly") == 0 || candyAnswer.find("JOLLY") == 0){
+    else if(candyAnswer == "jolly") {
         std::cout << "How many bags of candy did you make?\n";
         std::cin >> amount;
         candyUsed = amount * CANDY_USED;
         dispSpiceUsed(amount);
+        currentInv.updateInventoryUsed("inventory.txt",11, amount);
         std::cout << "You also used " << candyUsed << " ounces of Jolly Ranchers.\n";
     }
-    else if(candyAnswer.find("nerd") == 0 || candyAnswer.find("Nerd") == 0 || candyAnswer.find("NERD") == 0){
+    else if(candyAnswer == "nerd") {
         std::cout << "How many bags of candy did you make?\n";
         std::cin >> amount;
         candyUsed = amount * CANDY_USED;
         dispSpiceUsed(amount);
+        currentInv.updateInventoryUsed("inventory.txt",12, amount);
         std::cout << "You also used " << candyUsed << " ounces of Nerd Clusters.\n";
     }
-    else if(candyAnswer.find("Peach") == 0 || candyAnswer.find("peach") == 0 || candyAnswer.find("PEACH") == 0){
+    else if(candyAnswer == "peach") {
         std::cout << "How many bags of candy did you make?\n";
         std::cin >> amount;
         candyUsed = amount * CANDY_USED;
         dispSpiceUsed(amount);
+        currentInv.updateInventoryUsed("inventory.txt",13, amount);
         std::cout << "You also used " << candyUsed << " ounces of Peach Rings.\n";
     }
-    else if(candyAnswer.find("swedish") == 0 || candyAnswer.find("Swedish") == 0 || candyAnswer.find("SWEDISH") == 0){
+    else if(candyAnswer == "swedish") {
         std::cout << "How many bags of candy did you make?\n";
         std::cin >> amount;
         candyUsed = amount * CANDY_USED;
         dispSpiceUsed(amount);
+        currentInv.updateInventoryUsed("inventory.txt",14, amount);
         std::cout << "You also used " << candyUsed << " ounces of Swedish Fish.\n";
     }
-    else if(candyAnswer.find("starbursts") == 0 || candyAnswer.find("Starbursts") == 0 || candyAnswer.find("STARBURSTS") == 0){
+    else if(candyAnswer == "starburst" || candyAnswer == "starbursts") {
         std::cout << "How many bags of candy did you make?\n";
         std::cin >> amount;
         candyUsed = amount * CANDY_USED;
         dispSpiceUsed(amount);
+        currentInv.updateInventoryUsed("inventory.txt",9, amount);
         std::cout << "You also used " << candyUsed << " ounces of Starbursts.\n";
     }
     else{
@@ -314,64 +392,90 @@ void useProduct(std::string question){
 } // End useProduct
 
 /**
+ * Used to update inventory and money values when candy is sold.
  * Takes a question, asks what candy was sold, how much and calculates the money earned
  * @param question
  */
 void soldCandy(std::string question){
+    // clears cin in case anything is left over to mess with things
     std::cin.ignore(1,'\n');
     std::string candyAnswer;
     int amount;
     long totalEarned;
+    long convUSD;
+    Inventory currentInv;
 
-    std::cout << question;
+    std::cout << question << "\nRemember to refer"
+    " to multi-worded candies as the first word. "
+    "Ex: For 'Gummy Bears' type 'Gummy' or 'Nerd Clusters' as 'Nerd'.\n";
     std::getline(std::cin, candyAnswer);
-    if(candyAnswer.find("gummy") == 0 || candyAnswer.find("Gummy") == 0 || candyAnswer.find("GUMMY") == 0){
+
+    // Convert the candy answer to lowercase to simplify the comparison logic
+    std::transform(candyAnswer.begin(), candyAnswer.end(), candyAnswer.begin(), ::tolower);
+
+    if(candyAnswer == "gummy"){
         std::cout << "How many bags of candy did you sell?\n";
         std::cin >> amount;
         totalEarned = amount * GUMMYBEARS_USD;
-        std::cout << "You made $" << totalEarned/100 << " from the Gummy Bears.\n";
+        convUSD = totalEarned/100;
+        currentInv.appendMoneyEarned("moneygained.txt",convUSD);
+        std::cout << "You made $" << convUSD << " from the Gummy Bears.\n";
     }
-    else if(candyAnswer.find("skittles") == 0 || candyAnswer.find("Skittles") == 0 || candyAnswer.find("SKITTLES") == 0){
+    else if(candyAnswer == "skittles"){
         std::cout << "How many bags of candy did you sell?\n";
         std::cin >> amount;
         totalEarned = amount * SKITTLES_USD;
-        std::cout << "You made $" << totalEarned/100 << " from the Skittles.\n";
+        convUSD = totalEarned/100;
+        currentInv.appendMoneyEarned("moneygained.txt",convUSD);
+        std::cout << "You made $" << convUSD << " from the Skittles.\n";
     }
-    else if(candyAnswer.find("gushers") == 0 || candyAnswer.find("Gushers") == 0 || candyAnswer.find("GUSHERS") == 0){
+    else if(candyAnswer == "gushers"){
         std::cout << "How many bags of candy did you sell?\n";
         std::cin >> amount;
         totalEarned = amount * GUSHERS_USD;
-        std::cout << "You made $" << totalEarned/100 << " from the Gushers.\n";
+        convUSD = totalEarned/100;
+        currentInv.appendMoneyEarned("moneygained.txt",convUSD);
+        std::cout << "You made $" << convUSD << " from the Gushers.\n";
     }
-    else if(candyAnswer.find("jolly") == 0 || candyAnswer.find("Jolly") == 0 || candyAnswer.find("JOLLY") == 0){
+    else if(candyAnswer == "jolly"){
         std::cout << "How many bags of candy did you sell?\n";
         std::cin >> amount;
         totalEarned = amount * JRANCHERS_USD;
-        std::cout << "You made $" << totalEarned/100 << " from the Jolly Ranchers.\n";
+        convUSD = totalEarned/100;
+        currentInv.appendMoneyEarned("moneygained.txt",convUSD);
+        std::cout << "You made $" << convUSD << " from the Jolly Ranchers.\n";
     }
-    else if(candyAnswer.find("nerd") == 0 || candyAnswer.find("Nerd") == 0 || candyAnswer.find("NERD") == 0){
+    else if(candyAnswer == "nerd"){
         std::cout << "How many bags of candy did you sell?\n";
         std::cin >> amount;
         totalEarned = amount * NERDCLUSTERS_USD;
-        std::cout << "You made $" << totalEarned/100 << " from the Nerd Clusters.\n";
+        convUSD = totalEarned/100;
+        currentInv.appendMoneyEarned("moneygained.txt",convUSD);
+        std::cout << "You made $" << convUSD << " from the Nerd Clusters.\n";
     }
-    else if(candyAnswer.find("Peach") == 0 || candyAnswer.find("peach") == 0 || candyAnswer.find("PEACH") == 0){
+    else if(candyAnswer == "peach"){
         std::cout << "How many bags of candy did you sell?\n";
         std::cin >> amount;
         totalEarned = amount * PEACHRINGS_USD;
-        std::cout << "You made $" << totalEarned/100 << " from the Peach Rings.\n";
+        convUSD = totalEarned/100;
+        currentInv.appendMoneyEarned("moneygained.txt",convUSD);
+        std::cout << "You made $" << convUSD << " from the Peach Rings.\n";
     }
-    else if(candyAnswer.find("swedish") == 0 || candyAnswer.find("Swedish") == 0 || candyAnswer.find("SWEDISH") == 0){
+    else if(candyAnswer == "swedish"){
         std::cout << "How many bags of candy did you sell?\n";
         std::cin >> amount;
         totalEarned = amount * SWEDISHFISH_USD;
-        std::cout << "You made $" << totalEarned/100 << " from the Swedish Fish.\n";
+        convUSD = totalEarned/100;
+        currentInv.appendMoneyEarned("moneygained.txt",convUSD);
+        std::cout << "You made $" << convUSD << " from the Swedish Fish.\n";
     }
-    else if(candyAnswer.find("starbursts") == 0 || candyAnswer.find("Starbursts") == 0 || candyAnswer.find("STARBURSTS") == 0){
+    else if(candyAnswer == "starburst" || candyAnswer == "starbursts"){
         std::cout << "How many bags of candy did you sell?\n";
         std::cin >> amount;
         totalEarned = amount * STARBURSTS_USD;
-        std::cout << "You made $" << totalEarned/100 << " from the Starbursts.\n";
+        convUSD = totalEarned/100;
+        currentInv.appendMoneyEarned("moneygained.txt",convUSD);
+        std::cout << "You made $" << convUSD << " from the Starbursts.\n";
     }
     else{
         std::cout << "You entered an invalid response, please retry.\n";
@@ -380,11 +484,15 @@ void soldCandy(std::string question){
 } // End candySold
 
 /**
- * Takes amount of bags of candy made and calculates and displays how much spice was used
+ * Takes amount of bags of candy made and calculates
+ * and displays how much total spice was used
+ * also updates inventory with the amounts used.
  * @param amount
  */
 void dispSpiceUsed(int amount) {
-    double sazonAmt, tajinAmt, lpolvoAmt, miguelitoAmt, cayenneAmt, chamoyAmt, psugarAmt;
+    double sazonAmt, tajinAmt, lpolvoAmt,
+    miguelitoAmt, cayenneAmt, chamoyAmt, psugarAmt;
+    Inventory currentInv;
     sazonAmt = SAZON_OZ*amount;
     tajinAmt = TAJIN_OZ*amount;
     miguelitoAmt = MIGUELITO_OZ*amount;
@@ -393,8 +501,16 @@ void dispSpiceUsed(int amount) {
     chamoyAmt = CHAMOY_OZ*amount;
     psugarAmt = PSUGAR_OZ*amount;
     std::cout << "In ounces, you used the following amounts of each spice: \n"
-                 "Sazon: " << sazonAmt << ", Tajin: " << tajinAmt << ", Miguelito: " << miguelitoAmt << ", Lucas Polvo: " << lpolvoAmt<< ",\n"
-                                                                                                                                         "Cayenne Pepper: " << cayenneAmt << "Powdered Sugar: " << psugarAmt << ", and Chamoy: " << chamoyAmt << ".\n";
+                 "Sazon: " << sazonAmt << ", Tajin: " << tajinAmt <<
+                 ", Miguelito: " << miguelitoAmt << ", Lucas Polvo: " << lpolvoAmt<< ",\n"
+                 "Cayenne Pepper: " << cayenneAmt << ", Powdered Sugar: " << psugarAmt <<
+                 ", and Chamoy: " << chamoyAmt << ".\n";
+    currentInv.updateInventoryUsed("inventory.txt", 0, sazonAmt);
+    currentInv.updateInventoryUsed("inventory.txt", 1, tajinAmt);
+    currentInv.updateInventoryUsed("inventory.txt", 2, miguelitoAmt);
+    currentInv.updateInventoryUsed("inventory.txt", 3, lpolvoAmt);
+    currentInv.updateInventoryUsed("inventory.txt", 4, cayenneAmt);
+    currentInv.updateInventoryUsed("inventory.txt", 5, chamoyAmt);
+    currentInv.updateInventoryUsed("inventory.txt", 6, psugarAmt);
 } // End dispSpiceUsed
 
-//---------------------------------------------------------
