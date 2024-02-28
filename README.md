@@ -12,3 +12,6 @@ My reason for making this project is because one of my best friends runs a candy
 
 # List of Maintainers
 @JaydenMcCormick
+
+
+[![OpenSSF Scorecard](htt‌ps://api.securityscorecards.dev/projects/github.com/JaydenMcCormick/COP3003-Final-Project/badge)](htt‌ps://securityscorecards.dev/viewer/?uri=github.com/JaydenMcCormick/COP3003-Final-Project)
