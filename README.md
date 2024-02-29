@@ -20,7 +20,7 @@ Submit any bugs or suggestions via email to acesharkbite@gmail.com
 
 
 
-   Copyright 2024 Jayden McCormick
+   Copyright 2024 JaydenMcCormick
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
