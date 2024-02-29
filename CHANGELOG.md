@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CHANGELOG.md
 - LICENSES.md
 - STANDARD.md
+- REQUESTS.md
 
 ### Changed
 - Updated README.md
+  
