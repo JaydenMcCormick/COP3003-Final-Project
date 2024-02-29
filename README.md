@@ -1,3 +1,6 @@
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/8485/badge)](https://www.bestpractices.dev/projects/8485)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/JaydenMcCormick/COP3003-Final-Project/badge)](https://securityscorecards.dev/viewer/?uri=github.com/JaydenMcCormick/COP3003-Final-Project)
+
 # Project Description
 My final project is a console based application on the topic of making an inventory system for a candy business. It prompts the user and calculates ingredients bought, used, and overall money earned when completed bags of candy are sold.
 
@@ -15,7 +18,3 @@ My reason for making this project is because one of my best friends runs a candy
 
 # Bugs, Vulnerabilities & Suggestions
 Submit any bugs, suggestions, or found vulnerabilities via email to acesharkbite@gmail.com
-
-[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/JaydenMcCormick/COP3003-Final-Project/badge)](https://securityscorecards.dev/viewer/?uri=github.com/JaydenMcCormick/COP3003-Final-Project)
-
-
